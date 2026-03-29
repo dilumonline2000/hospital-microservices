@@ -1,0 +1,92 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # ============================================
+        # PATIENT SERVICE ROUTES (Port 8081)
+        # ============================================
+        - id: patient-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/patients/**
+
+        - id: patient-service-swagger
+          uri: http://localhost:8081
+          predicates:
+            - Path=/patient-service/api-docs/**
+          filters:
+            - RewritePath=/patient-service/api-docs/(?<segment>.*), /api-docs/${segment}
+
+        # ============================================
+        # DOCTOR SERVICE ROUTES (Port 8082)
+        # ============================================
+        - id: doctor-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/doctors/**
+
+        - id: doctor-service-swagger
+          uri: http://localhost:8082
+          predicates:
+            - Path=/doctor-service/api-docs/**
+          filters:
+            - RewritePath=/doctor-service/api-docs/(?<segment>.*), /api-docs/${segment}
+
+        # ============================================
+        # APPOINTMENT SERVICE ROUTES (Port 8083)
+        # ============================================
+        - id: appointment-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/appointments/**
+
+        - id: appointment-service-swagger
+          uri: http://localhost:8083
+          predicates:
+            - Path=/appointment-service/api-docs/**
+          filters:
+            - RewritePath=/appointment-service/api-docs/(?<segment>.*), /api-docs/${segment}
+
+        # ============================================
+        # PHARMACY SERVICE ROUTES (Port 8084)
+        # ============================================
+        - id: pharmacy-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/medicines/**
+
+        - id: pharmacy-service-swagger
+          uri: http://localhost:8084
+          predicates:
+            - Path=/pharmacy-service/api-docs/**
+          filters:
+            - RewritePath=/pharmacy-service/api-docs/(?<segment>.*), /api-docs/${segment}
+
+      # Global CORS Configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, gateway
+  endpoint:
+    gateway:
+      enabled: true
